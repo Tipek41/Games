@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pofidik Tavşan</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;font-family:"Comic Sans MS","Trebuchet MS",system-ui,sans-serif;background:linear-gradient(#9fdcff 0%,#d8f3ff 45%,#f3fbe4 70%);touch-action:manipulation}
+button{font:inherit;border:0;cursor:pointer}
+
+/* Arka plan: güneş, bulutlar, tepeler, çiçekler */
+#bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.sun{position:absolute;right:-30px;top:-30px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,#fff6b0 0%,#ffe45c 45%,rgba(255,228,92,0) 70%)}
+.cloud{position:absolute;font-size:64px;opacity:.95;animation:drift linear infinite}
+.c1{top:70px;left:-80px;animation-duration:46s}
+.c2{top:150px;left:-120px;font-size:46px;animation-duration:62s;animation-delay:-20s}
+.c3{top:40px;left:-100px;font-size:54px;animation-duration:78s;animation-delay:-45s}
+@keyframes drift{to{transform:translateX(130vw)}}
+.hill{position:absolute;border-radius:50% 50% 0 0}
+.h1{left:-25%;width:90%;height:34%;bottom:-6%;background:linear-gradient(#98dd72,#78c556)}
+.h2{right:-30%;width:100%;height:30%;bottom:-8%;background:linear-gradient(#86d460,#62b848)}
+.fl{position:absolute;font-size:26px}
+
+#app{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center}
+
+/* Üst bar */
+#hud{width:100%;height:56px;display:flex;align-items:center;justify-content:space-between;padding:8px 16px}
+#title{font-size:clamp(26px,7.5vw,38px);font-weight:bold;color:#ff6b35;letter-spacing:.5px;text-shadow:2px 2px 0 #fff,-2px 2px 0 #fff,2px -2px 0 #fff,-2px -2px 0 #fff,0 5px 0 rgba(255,107,53,.25)}
+#trophy{background:#fff8c9;border-radius:20px;padding:3px 12px;color:#a56a00;font-size:20px;font-weight:bold;box-shadow:0 3px 0 rgba(0,0,0,.1)}
+#sub{height:30px;display:flex;align-items:center;gap:10px;color:#35618f;font-size:17px;font-weight:bold;background:rgba(255,255,255,.7);border-radius:18px;padding:2px 14px}
+#pips{display:flex;gap:7px}
+.pip{width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px #ffb22c}
+.pip.on{background:#ff9d2e}
+
+/* Boy cetveli */
+#ruler{position:absolute;left:10px;top:112px;bottom:200px;width:20px;background:rgba(255,255,255,.8);border-radius:12px;box-shadow:inset 0 0 0 3px #fff;overflow:visible}
+#fill{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(#ffb04a,#ff7a2f);border-radius:12px;transition:height .8s cubic-bezier(.3,1.5,.5,1)}
+#mark{position:absolute;left:50%;font-size:24px;transform:translate(-50%,50%);transition:bottom .8s cubic-bezier(.3,1.5,.5,1)}
+
+/* Konuşma balonu */
+#bubble{min-height:78px;max-width:min(88vw,460px);margin:8px 0 2px;background:#fff;border-radius:26px;padding:12px 20px;font-size:clamp(18px,4.6vw,24px);color:#35618f;text-align:center;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 0 rgba(0,0,0,.1);position:relative}
+#bubble::after{content:"";position:absolute;bottom:-12px;left:50%;margin-left:-12px;border:12px solid transparent;border-bottom:0;border-top-color:#fff}
+
+/* Tavşan */
+#bunnyWrap{flex:1;min-height:0;width:100%;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+#scaler{transform-origin:50% 100%;transform:scale(var(--s,.62));transition:transform .9s cubic-bezier(.3,1.6,.5,1)}
+#bunnyBox{animation:bob 2.4s ease-in-out infinite;cursor:pointer}
+#bunnyBox svg{height:min(34vh,255px);width:auto;display:block;overflow:visible;filter:drop-shadow(0 6px 6px rgba(80,60,90,.18))}
+@keyframes bob{50%{transform:translateY(-6px)}}
+#bunnyBox.jump{animation:jump .7s}
+#bunnyBox.no{animation:no .6s}
+@keyframes jump{30%{transform:translateY(-70px) scaleY(1.08)}60%{transform:translateY(0) scaleY(.9)}80%{transform:translateY(-14px)}100%{transform:none}}
+@keyframes no{20%{transform:rotate(-7deg)}40%{transform:rotate(7deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(4deg)}}
+.eyes{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.earL,.earR{transform-box:fill-box;transform-origin:50% 100%}
+.earL{animation:wig 3.2s ease-in-out infinite}
+.earR{animation:wig 3.2s ease-in-out infinite reverse}
+@keyframes wig{50%{transform:rotate(4deg)}}
+#mouthO{transform-box:fill-box;transform-origin:center;transform:scaleY(.05)}
+#mouthO.chomp{animation:chomp .26s 3}
+@keyframes chomp{50%{transform:scaleY(1)}}
+
+/* Tabak */
+#plate{width:min(94vw,520px);margin:6px 0 14px;background:#fff;border-radius:44px;padding:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;box-shadow:0 8px 0 rgba(0,0,0,.12),inset 0 0 0 6px #ffe9c7;min-height:132px}
+.food{width:92px;height:106px;border-radius:30px;background:#fff8ee;box-shadow:0 5px 0 rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#7a4b00}
+.food:active{transform:translateY(4px)}
+.fe{font-size:52px;line-height:1.1}
+.ft{font-size:15px;font-weight:bold}
+.food.bye{animation:bye .7s forwards}
+@keyframes bye{40%{transform:translateY(-20px) rotate(-15deg)}100%{transform:translate(120px,-60px) rotate(90deg) scale(.2);opacity:0}}
+.fly{position:fixed;width:56px;height:56px;margin:-28px 0 0 -28px;font-size:48px;line-height:56px;text-align:center;transition:transform .6s ease-in,opacity .6s;z-index:40;pointer-events:none}
+
+/* Ebeveyn */
+#gear{position:absolute;right:10px;bottom:10px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.55);font-size:22px;transition:transform .9s}
+#gear.holding{transform:scale(1.5) rotate(120deg);background:#fff}
+#panel,#win{position:absolute;inset:0;background:rgba(255,255,255,.94);z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:20px}
+#panel h2,#win h2{margin:0;color:#ff6b35;font-size:clamp(28px,7vw,44px)}
+#panel p,#win p{margin:0;color:#35618f;font-size:clamp(17px,4.5vw,22px);max-width:420px}
+.pbtn{width:min(88vw,400px);padding:18px;border-radius:26px;font-size:clamp(19px,5vw,24px);color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.18)}
+.pbtn:active{transform:translateY(4px)}
+.conf{position:fixed;top:-50px;font-size:34px;z-index:70;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(115vh) rotate(360deg)}}
+
+/* Ekran ve erişilebilirlik */
+html,body{min-height:100%;height:100dvh;overflow:auto}
+#app{position:relative;min-height:100dvh;padding:env(safe-area-inset-top) 12px max(14px,env(safe-area-inset-bottom));max-width:900px;margin:auto}
+#hud{height:auto;min-height:58px;padding:6px 4px;gap:8px;flex-wrap:wrap}
+#title{font-size:clamp(23px,5vw,36px)}
+#controls{display:flex;gap:8px;align-items:center}
+.iconbtn{width:44px;height:44px;background:#fff;border-radius:16px;font-size:23px;box-shadow:0 3px 0 #83b7ce}
+#modebar{display:flex;gap:6px;margin:10px 0 0;flex-wrap:wrap;justify-content:center}
+.mode{background:#ffffffc9;border-radius:18px;padding:9px 13px;color:#35618f;min-height:44px;font-weight:bold}
+.mode[aria-pressed="true"]{background:#35618f;color:white}
+#bubble{min-height:68px;font-size:clamp(18px,3vw,23px);max-width:500px;margin-top:12px}
+#bunnyWrap{min-height:190px;flex:1;padding:18px 0 14px}
+#bunnyBox{touch-action:manipulation;border-radius:50%;outline-offset:8px}
+#bunnyBox svg{height:clamp(175px,30dvh,260px)}
+#scaler{--s:.62}
+#ruler{left:8px;top:245px;bottom:180px;min-height:90px;max-height:220px}
+#plate{width:min(100%,520px);margin:4px 0 8px;min-height:112px;gap:10px;padding:14px}
+.food{width:clamp(76px,22vw,100px);height:104px;touch-action:none;transition:box-shadow .2s}
+.food:disabled{opacity:.75;cursor:default}.food.dragging{box-shadow:0 0 0 4px #ffad50}
+#gear{position:static;margin:8px 0 0;width:auto;padding:0 15px;border-radius:18px;font-size:14px;min-height:44px;flex-shrink:0}
+#tip{color:#35618f;font-size:13px;text-align:center;margin:4px 0}
+#countChoices{display:flex;gap:14px;margin:6px 0 10px}
+.number{width:64px;height:58px;border-radius:20px;background:white;color:#35618f;font-size:30px;box-shadow:0 4px 0 #b3cc85}
+#panel,#win,#start{position:fixed;overflow:auto;justify-content:flex-start;padding:max(26px,env(safe-area-inset-top)) 20px 28px;inset:0;background:#fffffff5;z-index:60;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+#start{justify-content:center;background:linear-gradient(#dff5ff,#fff7dd)}
+#start .welcome{font-size:90px}#start h1{color:#ff6b35;margin:0;font-size:clamp(28px,6vw,44px)}#start p{color:#35618f;max-width:380px;font-size:18px}
+#panel h2,#win h2{margin-top:12px}.pbtn{padding:14px;min-height:50px}
+.prefrow{display:flex;align-items:center;justify-content:space-between;gap:16px;width:min(88vw,400px);color:#35618f;text-align:left}
+.prefrow select,.prefrow input{font:inherit;min-height:44px;max-width:180px}.prefrow select{padding:8px;border:1px solid #acc7d9;border-radius:12px;background:white;color:#35618f}
+#album{display:flex;gap:10px;font-size:35px;flex-wrap:wrap;justify-content:center}
+button:focus-visible,[role="button"]:focus-visible{outline:3px solid #245fb5;outline-offset:4px}
+#bubble:focus{outline:none}
+@media(max-height:600px) and (min-width:600px){#app{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:4px 20px}#hud,#modebar,#sub{grid-column:1/-1}#sub{justify-self:center}#bubble{grid-column:1;margin:4px 0}#bunnyWrap{grid-column:2;grid-row:4/8;min-height:190px}#plate,#countChoices,#tip,#gear{grid-column:1;justify-self:center}#bunnyBox svg{height:185px}#ruler{display:none}#plate{padding:10px}.food{height:85px}#modebar{margin:0}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.conf{display:none}}
+
+html[data-motion="calm"] *,html[data-motion="calm"] *::before,html[data-motion="calm"] *::after{animation:none!important;transition:none!important}
+</style>
+</head>
+<body>
+
+<div id="bg">
+  <div class="sun"></div>
+  <div class="cloud c1">☁️</div>
+  <div class="cloud c2">☁️</div>
+  <div class="cloud c3">☁️</div>
+  <div class="hill h1"></div>
+  <div class="hill h2"></div>
+  <div class="fl" style="left:6%;bottom:21%">🌼</div>
+  <div class="fl" style="left:86%;bottom:23%">🌷</div>
+  <div class="fl" style="left:70%;bottom:19%;font-size:20px">🌼</div>
+  <div class="fl" style="left:20%;bottom:25%;font-size:20px">🌸</div>
+</div>
+
+<div id="app">
+  <div id="hud">
+    <div id="title">🐰 Pofidik Tavşan</div>
+    <div id="controls"><div id="trophy">🏆 0</div><button class="iconbtn" id="sound" aria-label="Sesi kapat" aria-pressed="true">🔊</button></div>
+  </div>
+  <div id="sub"><span id="lvl">Seviye 1/5</span><div id="pips"></div></div>
+  <div id="modebar" aria-label="Oyun seç"><button class="mode" data-mode="feed" aria-pressed="true">🥕 Besle</button><button class="mode" data-mode="find" aria-pressed="false">🔎 Bul</button><button class="mode" data-mode="count" aria-pressed="false">🔢 Say</button></div>
+  <div id="ruler"><div id="fill"></div><div id="mark">🐰</div></div>
+  <div id="bubble" role="status" aria-live="polite">Merhaba! Ben Pofi! Karnım acıktı, beni doyurur musun? 🥕</div>
+  <div id="bunnyWrap"><div id="scaler"><div id="bunnyBox" role="button" tabindex="0" aria-label="Pofi ile zıpla"></div></div></div>
+  <div id="plate" aria-label="Yiyecekler"></div><div id="countChoices" hidden aria-label="Kaç tane?"></div><p id="tip">Bir yiyeceğe dokun ya da Pofi’ye sürükle.</p>
+  <button id="gear" aria-label="Ebeveyn paneli; basılı tut">⚙️ Ebeveyn · basılı tut</button>
+</div>
+
+<div id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" hidden>
+  <h2 id="panelTitle">Ebeveyn paneli</h2>
+<label class="prefrow">Ses <input id="volume" type="range" min="0" max="100" step="10" aria-label="Ses seviyesi"></label>
+<label class="prefrow">Yiyecek adları <select id="language"><option value="tr">Türkçe</option><option value="both">Türkçe + İngilizce</option></select></label>
+<label class="prefrow">Hareketler <select id="motion"><option value="full">Hareketli</option><option value="calm">Sakin</option></select></label>
+  <p>İstersen yiyeceği tanıma ve deneme anlarını buradan kaydet. Oyun puanı ayrı; gerçek yemek zorunlu değil.</p>
+  <button class="pbtn" id="pReal" style="background:#3ccf6e">😋 Tadına baktı (+1)</button>
+  <button class="pbtn" id="pTry" style="background:#38b6ff">👃 Dokundu / kokladı (+1)</button>
+  <p id="pCount"></p>
+  <button class="pbtn" id="pClose" style="background:#9aa7b4">Kapat</button>
+  <button id="pReset" style="background:none;color:#99a;font-size:15px;text-decoration:underline">Pofi'yi baştan başlat</button>
+</div>
+
+<div id="win" role="dialog" aria-modal="true" aria-labelledby="winTitle" hidden>
+  <h2 id="winTitle">Pofi büyük tavşan oldu! 🏆</h2><div id="album" aria-label="Kazanılan çıkartmalar"></div>
+  <p>Harika bir iş çıkardınız!</p>
+  <button class="pbtn" id="winBtn" style="background:#ff8a2f">🥚 Yeniden büyüyelim</button>
+</div>
+
+<div id="start" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle"><div class="welcome" aria-hidden="true">🐰</div><h1 id="welcomeTitle">Pofi seni bekliyor!</h1><p>Birlikte yiyecekleri tanıyalım, sayalım ve Pofi’yi büyütelim.</p><button class="pbtn" id="startBtn" style="background:#ff8a2f">▶ Oynayalım</button></div>
+<script>
+const FAMILIAR=[
+  {e:"🍚",tr:"pilav",en:"rice",line:"Pilav taneleri dans ediyor! Hop hop hop!",p:1.3},
+  {e:"🍝",tr:"makarna",en:"pasta",line:"Makarna kıvır kıvır spagetti!",p:1.1},
+  {e:"🥔",tr:"patates",en:"potato",line:"Ben patatesim! Yuvarlak yuvarlak!",p:.9}
+];
+const NEW=[
+  {e:"🥦",tr:"brokoli",en:"broccoli",line:"Brokoli minik bir ağaca benziyor!",p:.7},
+  {e:"🥕",tr:"havuç",en:"carrot",line:"Turuncu havuç! Pofi havucu tanıyor!",p:1.7},
+  {e:"🍎",tr:"elma",en:"apple",line:"Çıtır çıtır! Ben kırmızı elmayım!",p:1.4},
+  {e:"🍌",tr:"muz",en:"banana",line:"Muz geldi, kaydır kaydır! Hop!",p:1.2},
+  {e:"🥛",tr:"süt",en:"milk",line:"Beyaz süt! Möö, diyor inek!",p:1.0},
+  {e:"🥚",tr:"yumurta",en:"egg",line:"Ben yumurtayım! İçimde minik bir güneş var!",p:1.5},
+  {e:"🧀",tr:"peynir",en:"cheese",line:"Ben peynirim! Kaç tane deliğim var, say bakalım!",p:1.1},
+  {e:"🍗",tr:"tavuk",en:"chicken",line:"Gıt gıt gıdak! Bu da tavuk!",p:1.3},
+  {e:"🐟",tr:"balık",en:"fish",line:"Blup blup! Ben yüzen süper balığım!",p:.9},
+  {e:"🥣",tr:"çorba",en:"soup",line:"Sıcacık çorba, karnına sarılırım!",p:.8},
+  {e:"🍅",tr:"domates",en:"tomato",line:"Ben yuvarlak kırmızı domatesim!",p:1.5},
+  {e:"🥒",tr:"salatalık",en:"cucumber",line:"Çıt çıt salatalık! Yeşil yeşil!",p:1.2}
+];
+// Şeker bazen gelir. Pofi nazikçe geri çevirir, ceza yok, utandırma yok.
+const CANDY={e:"🍬",tr:"şeker",en:"candy",line:"Şekerler bazen gelir. Pofi'nin karnı yemek istiyor!",p:1.4};
+
+// Her büyüme seviyesi: boy çarpanı ve aksesuar
+const STAGES=[
+  {s:.62,acc:null},
+  {s:.76,acc:{e:"🎀",x:184,y:86}},
+  {s:.90,acc:{e:"🌸",x:184,y:86}},
+  {s:1.04,acc:{e:"🎩",x:150,y:80}},
+  {s:1.18,acc:{e:"👑",x:150,y:80}}
+];
+const BITES_PER_STAGE=3;
+
+function tufts(cx,cy,rx,ry,n,r,phase){
+  let s="";
+  for(let i=0;i<n;i++){
+    const a=i/n*Math.PI*2+(phase||0);
+    const rr=r*(0.9+0.2*Math.sin(i*2.1));
+    s+='<circle cx="'+(cx+rx*Math.cos(a)).toFixed(1)+'" cy="'+(cy+ry*Math.sin(a)).toFixed(1)+'" r="'+rr.toFixed(1)+'" fill="#fff" stroke="#f0dfec" stroke-width="2.5"/>';
+  }
+  return s;
+}
+function fur(x,y,w,h){ // küçük tüy çizgisi
+  return '<path d="M'+x+' '+y+' q'+(w/2)+' '+(-h)+' '+w+' 0" fill="none" stroke="#ecd6e4" stroke-width="2" stroke-linecap="round"/>';
+}
+function buildBunny(){
+  return '<svg viewBox="0 0 300 350" xmlns="http://www.w3.org/2000/svg">'+
+  '<defs>'+
+   '<radialGradient id="shade" cx="40%" cy="35%" r="75%"><stop offset="0%" stop-color="#fff" stop-opacity="0"/><stop offset="70%" stop-color="#fff" stop-opacity="0"/><stop offset="100%" stop-color="#e8d2e4" stop-opacity=".75"/></radialGradient>'+
+   '<radialGradient id="earIn" cx="50%" cy="60%" r="60%"><stop offset="0%" stop-color="#ffd3e2"/><stop offset="100%" stop-color="#ff9fbf"/></radialGradient>'+
+   '<radialGradient id="eyeG" cx="40%" cy="35%" r="70%"><stop offset="0%" stop-color="#6a4a5a"/><stop offset="55%" stop-color="#2d1d28"/><stop offset="100%" stop-color="#150d13"/></radialGradient>'+
+   '<radialGradient id="blush" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ff8fb0" stop-opacity=".75"/><stop offset="100%" stop-color="#ff8fb0" stop-opacity="0"/></radialGradient>'+
+  '</defs>'+
+  // yer gölgesi
+  '<ellipse cx="150" cy="340" rx="98" ry="10" fill="#4d7a3a" opacity=".22"/>'+
+  // kuyruk
+  tufts(226,292,21,21,9,14,.3)+'<circle cx="226" cy="292" r="27" fill="#fff"/><circle cx="226" cy="292" r="27" fill="url(#shade)"/>'+
+  // gövde
+  tufts(150,254,84,74,16,17,.1)+'<ellipse cx="150" cy="254" rx="88" ry="78" fill="#fff"/>'+
+  '<ellipse cx="150" cy="254" rx="88" ry="78" fill="url(#shade)"/>'+
+  '<ellipse cx="150" cy="270" rx="46" ry="46" fill="#fff3f8"/>'+
+  fur(128,258,12,7)+fur(152,274,12,7)+fur(172,256,12,7)+fur(138,290,12,7)+
+  // patiler
+  '<ellipse cx="108" cy="324" rx="28" ry="17" fill="#fff" stroke="#f0dfec" stroke-width="3"/>'+
+  '<ellipse cx="192" cy="324" rx="28" ry="17" fill="#fff" stroke="#f0dfec" stroke-width="3"/>'+
+  '<path d="M100 320 v8 M108 318 v10 M116 320 v8" stroke="#ecd6e4" stroke-width="2.2" stroke-linecap="round"/>'+
+  '<path d="M184 320 v8 M192 318 v10 M200 320 v8" stroke="#ecd6e4" stroke-width="2.2" stroke-linecap="round"/>'+
+  // kulaklar (biri hafif sarkık, tatlı görünsün)
+  '<g class="earL"><ellipse cx="108" cy="64" rx="26" ry="62" fill="#fff" stroke="#f0dfec" stroke-width="3" transform="rotate(-15 108 64)"/>'+
+  '<ellipse cx="108" cy="70" rx="13" ry="42" fill="url(#earIn)" transform="rotate(-15 108 64)"/></g>'+
+  '<g class="earR"><ellipse cx="192" cy="64" rx="26" ry="62" fill="#fff" stroke="#f0dfec" stroke-width="3" transform="rotate(7 192 64)"/>'+
+  '<ellipse cx="192" cy="70" rx="13" ry="42" fill="url(#earIn)" transform="rotate(7 192 64)"/></g>'+
+  // kafa: yanaklarda tüy pufları
+  tufts(150,156,70,64,14,18,.2)+
+  '<circle cx="82" cy="176" r="22" fill="#fff" stroke="#f0dfec" stroke-width="2.5"/><circle cx="218" cy="176" r="22" fill="#fff" stroke="#f0dfec" stroke-width="2.5"/>'+
+  '<ellipse cx="150" cy="156" rx="74" ry="68" fill="#fff"/>'+
+  '<ellipse cx="150" cy="156" rx="74" ry="68" fill="url(#shade)"/>'+
+  // alın kıvrımı
+  '<path d="M138 92 q8 -14 14 -2 q5 -10 12 2" fill="none" stroke="#ecd6e4" stroke-width="2.5" stroke-linecap="round"/>'+
+  // yanaklar
+  '<ellipse cx="98" cy="178" rx="20" ry="14" fill="url(#blush)"/><ellipse cx="202" cy="178" rx="20" ry="14" fill="url(#blush)"/>'+
+  // gözler
+  '<g class="eyes">'+
+   '<ellipse cx="118" cy="146" rx="13" ry="16" fill="url(#eyeG)"/><ellipse cx="182" cy="146" rx="13" ry="16" fill="url(#eyeG)"/>'+
+   '<circle cx="123" cy="140" r="5.5" fill="#fff"/><circle cx="187" cy="140" r="5.5" fill="#fff"/>'+
+   '<circle cx="113" cy="153" r="2.6" fill="#fff" opacity=".85"/><circle cx="177" cy="153" r="2.6" fill="#fff" opacity=".85"/>'+
+  '</g>'+
+  // bıyıklar
+  '<g stroke="#e3cddd" stroke-width="2" stroke-linecap="round" fill="none">'+
+   '<path d="M92 176 Q70 170 54 172"/><path d="M92 184 Q70 188 56 194"/>'+
+   '<path d="M208 176 Q230 170 246 172"/><path d="M208 184 Q230 188 244 194"/>'+
+  '</g>'+
+  // burun (kalp biçimli)
+  '<path d="M150 170 C139 160 140 153 146 153 C149 153 150 156 150 156 C150 156 151 153 154 153 C160 153 161 160 150 170 Z" fill="#ff8fb0"/>'+
+  '<ellipse cx="146" cy="157" rx="2.5" ry="1.6" fill="#fff" opacity=".6"/>'+
+  // dişler, ağız
+  '<rect x="143" y="177" width="7" height="11" rx="2.5" fill="#fff" stroke="#ead6e0" stroke-width="1.5"/>'+
+  '<rect x="150" y="177" width="7" height="11" rx="2.5" fill="#fff" stroke="#ead6e0" stroke-width="1.5"/>'+
+  '<ellipse id="mouthO" cx="150" cy="183" rx="13" ry="12" fill="#d9446f"/>'+
+  '<path d="M150 170 v6 M150 176 Q142 186 133 178 M150 176 Q158 186 167 178" fill="none" stroke="#c2557a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+
+  // aksesuar
+  '<text id="acc" x="150" y="80" font-size="48" text-anchor="middle"></text>'+
+  '</svg>';
+}
+
+
+const $=s=>document.querySelector(s);
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+function read(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}}
+const integer=(n,max)=>Number.isFinite(Number(n))?Math.min(max,Math.max(0,Math.floor(Number(n)))):0;
+const saved=read('pofi')||{};
+let S={stage:Math.max(1,integer(saved.stage,5)),bites:integer(saved.bites,2),trophies:integer(saved.trophies,9999)};
+let prefs={sound:true,volume:60,language:'tr',motion:'full',...read('pofi_prefs')};
+prefs.volume=integer(prefs.volume,100);prefs.language=prefs.language==='both'?'both':'tr';prefs.motion=prefs.motion==='calm'?'calm':'full';
+let mode='feed',active=false,lock=false,target=null,quantity=1,ac,epoch=0,holdT,drag=null,previousFocus;
+const timers=new Set();const reduced=()=>prefs.motion==='calm'||matchMedia('(prefers-reduced-motion: reduce)').matches;
+function save(){try{localStorage.setItem('pofi',JSON.stringify(S));localStorage.setItem('pofi_prefs',JSON.stringify(prefs))}catch{}}
+function wait(f,ms){const generation=epoch;const id=setTimeout(()=>{timers.delete(id);if(generation===epoch)f()},ms);timers.add(id);return id}
+function cancel(){epoch++;timers.forEach(clearTimeout);timers.clear();lock=false;clearTimeout(holdT);if(drag){drag.ghost?.remove();drag=null}document.querySelectorAll('.fly,.conf').forEach(e=>e.remove());$('#bunnyBox').classList.remove('jump','no');$('#mouthO')?.classList.remove('chomp');window.speechSynthesis?.cancel();}
+function today(){return new Date().toLocaleDateString('en-CA')}
+function getReal(){const r=read('pofi_real');return r?.d===today()?integer(r.n,999):0}
+function addReal(){try{localStorage.setItem('pofi_real',JSON.stringify({d:today(),n:getReal()+1}))}catch{}}
+function tone(f,d=.15,type='sine',when=0,vol=.16){if(!active||!prefs.sound||!prefs.volume)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+when;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(vol*prefs.volume/100,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d)}catch{}}
+function speak(text,lang='tr-TR',queue=false,pitch=1.1,rate=.88){if(!active||!prefs.sound||!prefs.volume||!window.speechSynthesis)return;try{if(!queue)speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=rate;u.pitch=pitch;u.volume=prefs.volume/100;const v=speechSynthesis.getVoices().find(v=>v.lang.toLowerCase().startsWith(lang.slice(0,2).toLowerCase()));if(v)u.voice=v;speechSynthesis.speak(u)}catch{}}
+const good=()=>[523,659,784].forEach((f,i)=>tone(f,.15,'sine',i*.1));
+function setBubble(t){$('#bubble').textContent=t}
+function anim(cls='jump'){if(reduced())return;const b=$('#bunnyBox');b.classList.remove('jump','no');void b.offsetWidth;b.classList.add(cls);wait(()=>b.classList.remove(cls),750)}
+function confetti(){if(reduced())return;for(let i=0;i<16;i++){const c=document.createElement('div');c.className='conf';c.textContent=pick(['⭐','🌸','🥕','✨']);c.style.left=rnd(95)+'vw';c.style.animationDuration=(1.6+Math.random()*1.3)+'s';document.body.append(c);wait(()=>c.remove(),3000)}}
+function render(){const st=STAGES[S.stage-1];$('#scaler').style.setProperty('--s',st.s);const acc=$('#acc');acc.textContent=st.acc?.e||'';if(st.acc){acc.setAttribute('x',st.acc.x);acc.setAttribute('y',st.acc.y)}$('#lvl').textContent='Seviye '+S.stage+'/5';$('#trophy').textContent='🏆 '+S.trophies;$('#pips').replaceChildren();for(let i=0;i<3;i++){const d=document.createElement('div');d.className='pip'+(i<S.bites?' on':'');$('#pips').append(d)}const pct=$('#win').hidden?((S.stage-1)*3+S.bites)/15*100:100;$('#fill').style.height=pct+'%';$('#mark').style.bottom=pct+'%';$('#sound').textContent=prefs.sound?'🔊':'🔇';$('#sound').setAttribute('aria-label',prefs.sound?'Sesi kapat':'Sesi aç');$('#sound').setAttribute('aria-pressed',String(!!prefs.sound));document.documentElement.dataset.motion=prefs.motion;}
+function addBites(){if(!$('#win').hidden)return;S.bites++;if(S.bites===3){S.bites=0;S.stage++;if(S.stage===6){S.stage=5;S.trophies++;save();$('#win').hidden=false;$('#album').textContent=['🥕','🌸','🦋','🌈','⭐'][(S.trophies-1)%5];render();confetti();speak('Pofi büyüdü! Bir çıkartma kazandın.');$('#winBtn').focus();return}confetti();setBubble('Pofi biraz daha büyüdü! 🐰')}save();render()}
+function question(){if(mode==='find'){setBubble(target.e+' '+target.tr+' nerede?');speak(target.tr+' nerede?')}else if(mode==='count'){setBubble('Kaç tane '+target.tr+' var?');speak('Kaç tane '+target.tr+' var?')}else setBubble('Pofi için bir yiyecek seç! 🐰')}
+function buildPlate(){const pl=$('#plate');pl.replaceChildren();$('#countChoices').replaceChildren();$('#countChoices').hidden=mode!=='count';$('#tip').textContent=mode==='feed'?'Bir yiyeceğe dokun ya da Pofi’ye sürükle.':mode==='find'?'İstenen yiyeceğe dokun.':'Yiyecekleri say, sonra sayıya dokun.';const items=shuffle([pick(FAMILIAR),...shuffle(NEW.slice()).slice(0,2)]);target=pick(items);quantity=1+rnd(3);if(mode==='count'){const row=document.createElement('div');row.style.cssText='display:flex;gap:16px;align-items:center;justify-content:center;font-size:58px';row.setAttribute('aria-label',quantity+' tane '+target.tr);for(let i=0;i<quantity;i++){const span=document.createElement('span');span.textContent=target.e;row.append(span)}pl.append(row);for(let n=1;n<=3;n++){const b=document.createElement('button');b.className='number';b.textContent=n;b.setAttribute('aria-label',n+' tane');b.onclick=()=>answerCount(n);$('#countChoices').append(b)}}else items.forEach(f=>{const b=document.createElement('button');b.type='button';b.className='food';b.setAttribute('aria-label',f.tr);const e=document.createElement('span');e.className='fe';e.textContent=f.e;const t=document.createElement('span');t.className='ft';t.textContent=f.tr;b.append(e,t);b.onclick=()=>feed(f,b);attachDrag(b,f);pl.append(b)});if(active)question()}
+function fly(emoji,btn){if(reduced())return;const r=btn.getBoundingClientRect(),m=$('#bunnyBox').getBoundingClientRect();const el=document.createElement('div');el.className='fly';el.textContent=emoji;el.style.left=r.left+r.width/2+'px';el.style.top=r.top+r.height/2+'px';document.body.append(el);const generation=epoch;requestAnimationFrame(()=>requestAnimationFrame(()=>{if(generation!==epoch)return;el.style.transform='translate('+(m.left+m.width/2-r.left-r.width/2)+'px,'+(m.top+m.height*.55-r.top-r.height/2)+'px) scale(.4)';el.style.opacity='.2'}));wait(()=>el.remove(),750)}
+function reward(text){good();anim();setBubble(text);speak(text);addBites();wait(()=>{lock=false;if($('#win').hidden)buildPlate()},1800)}
+function feed(f,b){if(!active||lock||!$('#panel').hidden||!$('#win').hidden)return;if(mode==='find'&&f!==target){setBubble('Bu '+f.tr+'. '+target.tr+' nerede acaba?');speak('Bu '+f.tr+'. '+target.tr+' nerede acaba?');return}lock=true;$('#plate').querySelectorAll('button').forEach(b=>b.disabled=true);fly(f.e,b);setBubble(f.line);if(prefs.language==='both')speak(f.en,'en-US');speak(f.line,'tr-TR',prefs.language==='both',f.p);wait(()=>{const m=$('#mouthO');m.classList.add('chomp');tone(230,.1,'triangle');anim();addBites();wait(()=>m.classList.remove('chomp'),800)},650);wait(()=>{lock=false;if($('#win').hidden)buildPlate()},2200)}
+function answerCount(n){if(!active||lock||!$('#panel').hidden||!$('#win').hidden)return;if(n!==quantity){setBubble('Birlikte sayalım: '+Array.from({length:quantity},(_,i)=>i+1).join(', ')+'!');speak('Birlikte sayalım. '+Array.from({length:quantity},(_,i)=>i+1).join(', '));return}lock=true;reward('Evet, '+quantity+' tane '+target.tr+'!')}
+function attachDrag(b,f){b.addEventListener('pointerdown',e=>{if(mode!=='feed'||lock||!active)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,b,f,moved:false};b.setPointerCapture(e.pointerId)});b.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>12&&!drag.moved){drag.moved=true;drag.ghost=document.createElement('div');drag.ghost.className='fly';drag.ghost.textContent=f.e;drag.ghost.style.transition='none';document.body.append(drag.ghost);b.classList.add('dragging')}if(drag.moved){drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px'}});b.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;const d=drag;drag=null;d.ghost?.remove();b.classList.remove('dragging');if(!d.moved)return;const swallow=ev=>{ev.preventDefault();ev.stopImmediatePropagation()};b.addEventListener('click',swallow,{once:true,capture:true});wait(()=>b.removeEventListener('click',swallow,true),0);const r=$('#bunnyBox').getBoundingClientRect();if(e.clientX>=r.left-30&&e.clientX<=r.right+30&&e.clientY>=r.top-30&&e.clientY<=r.bottom+30)feed(f,b)});b.addEventListener('pointercancel',()=>{drag?.ghost?.remove();drag=null;b.classList.remove('dragging')})}
+function homeRound(){cancel();$('#win').hidden=true;S.stage=1;S.bites=0;save();render();buildPlate()}
+function openPanel(){previousFocus=document.activeElement;cancel();$('#volume').value=prefs.volume;$('#language').value=prefs.language;$('#motion').value=prefs.motion;$('#pCount').textContent='Bugün tadına bakılan: '+getReal();$('#panel').hidden=false;$('#pClose').focus()}
+function closePanel(){cancel();$('#panel').hidden=true;render();buildPlate();previousFocus?.focus()}
+const gear=$('#gear');gear.addEventListener('pointerdown',e=>{gear.setPointerCapture(e.pointerId);gear.classList.add('holding');holdT=setTimeout(()=>{gear.classList.remove('holding');openPanel()},900)});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>gear.addEventListener(ev,()=>{clearTimeout(holdT);gear.classList.remove('holding')}));gear.addEventListener('click',e=>{if(e.detail===0)openPanel()});
+$('#pClose').onclick=closePanel;$('#volume').oninput=e=>{prefs.volume=integer(e.target.value,100);save()};$('#language').onchange=e=>{prefs.language=e.target.value;save()};$('#motion').onchange=e=>{prefs.motion=e.target.value;save();render()};$('#pReset').onclick=()=>{if(confirm('Pofi’nin bu turdaki büyümesi sıfırlansın mı? Çıkartmalar korunur.')){closePanel();homeRound()}};$('#pReal').onclick=()=>{addReal();closePanel();good();addBites();setBubble('Yeni bir tatla tanıştın! 🐰')};$('#pTry').onclick=()=>{closePanel();good();addBites();setBubble('Yiyeceği keşfettin! 🐰')};$('#winBtn').onclick=homeRound;
+$('#sound').onclick=()=>{prefs.sound=!prefs.sound;if(!prefs.sound){window.speechSynthesis?.cancel();ac?.suspend()}save();render();if(prefs.sound)good()};
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{cancel();mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(el=>el.setAttribute('aria-pressed',String(el===b)));buildPlate()});
+function jump(){if(!active||lock||!$('#panel').hidden||!$('#win').hidden)return;anim();tone(500);speak('Hop hop!')};$('#bunnyBox').onclick=jump;$('#bunnyBox').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();jump()}};
+$('#startBtn').onclick=()=>{active=true;$('#start').hidden=true;good();question();$('#bubble').setAttribute('tabindex','-1');$('#bubble').focus()};
+document.addEventListener('visibilitychange',()=>{if(document.hidden){cancel();ac?.suspend()}else if(active&&$('#panel').hidden&&$('#win').hidden)buildPlate()});
+document.addEventListener('keydown',e=>{const dialog=!$('#start').hidden?$('#start'):!$('#panel').hidden?$('#panel'):!$('#win').hidden?$('#win'):null;if(e.key==='Escape'&&!$('#panel').hidden)closePanel();if(e.key==='Tab'&&dialog){const controls=[...dialog.querySelectorAll('button,input,select')].filter(el=>!el.disabled);const first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+$('#bunnyBox').innerHTML=buildBunny();render();buildPlate();$('#startBtn').focus();
+
+</script>
+</body>
+</html>

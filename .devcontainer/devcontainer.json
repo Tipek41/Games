@@ -1,0 +1,15 @@
+{
+  "name": "Games \u00f6nizleme",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "forwardPorts": [
+    3000
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "Oyunlar",
+      "onAutoForward": "openBrowser",
+      "protocol": "http"
+    }
+  },
+  "postStartCommand": "nohup node .devcontainer/preview.mjs > /tmp/games-preview.log 2>&1 &"
+}
